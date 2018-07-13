@@ -1,0 +1,245 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "SMS service",
+    "description": "Sends SMS Message"
+  },
+  "tags" : [
+    {
+      "name" : "diagnostic",
+      "description": "For diagnostic purposes"
+    },
+    {
+      "name" : "messaging",
+      "description": "covers all endpoints involving messaging"
+    }
+  ],
+  "basePath": "/api/v1",
+  "paths": {
+    "/ping": {
+      "get": {
+        "tags" : [ "diagnostic" ],
+        "summary": "Validates that the service is running and responding to requests",
+        "description": "Validates that the service is running and responding to requests. It will also return the last time data was received.",
+        "produces": [
+          "application/json",
+          "text/plain"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "404": {
+            "description": "Endpoint Not Found",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/send": {
+      "post": {
+        "tags" : [ "messaging" ],
+        "summary": "sends sms message",
+        "description": "A message will be sent to a phone number using a 3rd messaging service, Both message body and phone number is expected from the JSON body.",
+        "produces": [
+          "application/json",
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "name": "Message Request",
+            "in": "body",
+            "required": true,
+            "description": "Message request structure having only the number and message as required json properties.",
+            "schema": {
+              "$ref": "#/definitions/MessageRequest"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Bearer token containing uaa user scope - the authentication for this user",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response returning an array of status for each recipient defined in MessageRequest.to",
+            "schema": {
+              "$ref": "#/definitions/MessageResponse"
+            }
+          },
+          "404": {
+            "description": "Endpoint Not Found",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ProcessInfo": {
+      "type": "object",
+      "description": "This is used primarily for debugging so the data returned can change depending on the need. The data given below should be considered the minimum.",
+      "properties": {
+        "predix-space": {
+          "type": "string"
+        },
+        "instance-no": {
+          "type": "integer"
+        },
+        "uptime": {
+          "type": "number"
+        },
+        "max-go-threads": {
+          "type": "integer"
+        },
+        "bytesUsed": {
+          "type": "number"
+        },
+        "bytesAvail": {
+          "type": "number"
+        }
+      }
+    },
+    "MessageRequest": {
+      "type": "object",
+      "description": "Message request parameters",
+      "required": [
+        "to", "message"
+      ],
+      "properties": {
+        "to": {
+          "description:": "The phone number in E164 format or alphanumeric sender ID that initiated the message. For incoming messages, this will be the remote phone. For outgoing messages, this will be one of your Twilio phone numbers or the alphanumeric sender ID used.",
+          "$ref": "#/definitions/Recepients"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "MessageResponse": {
+      "type" : "array",
+      "items": {
+        "$ref": "#/definitions/SMSResponse"
+      }},
+    "SMSResponse": {
+      "type": "object",
+      "description": "sms response",
+      "required": [
+        "recipient", "status"
+      ],
+      "properties": {
+        "recipient": {
+          "description:": "recipient phone number",
+          "type": "string"
+        },
+        "status": {
+          "description:": "N/I, Notified, MSG Read, MSG Acknowledged or Failed",
+          "type": "string"
+        },
+        "statusdescription": {
+          "description:": "more information about the status",
+          "type": "string"
+        }
+      }
+    },
+    "Recepients":{
+      "type" : "array",
+      "items": {
+        "type": "string"
+      }},
+    "SubSourceUri": {
+      "type": "object",
+      "properties": {
+        "media": {
+          "type": "string"
+        }
+      }
+    },
+    "TwilioResponse": {
+      "type": "object",
+      "description": "Message response from Twilio",
+      "properties": {
+        "sid": {
+          "type": "string"
+        },
+        "date_created": {
+          "type": "string"
+        },
+        "date_updated": {
+          "type": "string"
+        },
+        "date_sent": {
+          "type": "string"
+        },
+        "account_sid": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "messaging_service_sid": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "num_segments": {
+          "type": "string"
+        },
+        "num_media": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string"
+        },
+        "api_version": {
+          "type": "string"
+        },
+        "price": {
+          "type": "string"
+        },
+        "price_unit": {
+          "type": "string"
+        },
+        "error_code": {
+          "type": "string"
+        },
+        "error_message": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "subresource_uris": {
+          "schema": {
+            "type": "array",
+            "items" : {
+              "$ref": "#/definitions/SubSourceUri"
+            }
+          }
+        }
+      }
+    }
+
+  }
+}
