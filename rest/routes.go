@@ -6,7 +6,7 @@ import (
 
 var routes = ConfiguredRoutes{
 	Route{
-		Name:        "Email",
+		Name:        "SMS",
 		Method:      "POST",
 		Pattern:     "/send",
 		HandlerFunc: HandlePostMessage},

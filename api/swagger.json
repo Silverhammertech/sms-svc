@@ -2,8 +2,8 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "Pax Protect SMS service",
-    "description": "Interacts with 3rd partys SMS services"
+    "title": "SMS service",
+    "description": "Sends SMS Message"
   },
   "tags" : [
     {
@@ -17,25 +17,6 @@
   ],
   "basePath": "/api/v1",
   "paths": {
-    "/info": {
-      "get": {
-        "tags" : [ "diagnostic" ],
-        "summary": "Gets run-time information about this service",
-        "description": "Gets run-time information about this service.",
-        "produces": [
-          "text/plain",
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "schema": {
-              "$ref": "#/definitions/ProcessInfo"
-            }
-          }
-        }
-      }
-    },
     "/ping": {
       "get": {
         "tags" : [ "diagnostic" ],
@@ -140,27 +121,11 @@
         "to", "message"
       ],
       "properties": {
-        "sid": {
-          "description:": "A 34 character string that uniquely identifies resource",
-          "type": "string"
-        },
-        "token": {
-          "description:": "Authtoken",
-          "type": "string"
-        },
-        "from": {
-          "description:": "Authtoken for Twilio",
-          "type": "string"
-        },
         "to": {
           "description:": "The phone number in E164 format or alphanumeric sender ID that initiated the message. For incoming messages, this will be the remote phone. For outgoing messages, this will be one of your Twilio phone numbers or the alphanumeric sender ID used.",
           "$ref": "#/definitions/Recepients"
         },
         "message": {
-          "type": "string"
-        },
-        "transactionid": {
-          "description:": "Uniquely identifies a SMS request. The status callback tracking will be triggered if this attribute is provided.",
           "type": "string"
         }
       }

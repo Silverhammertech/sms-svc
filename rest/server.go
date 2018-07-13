@@ -3,16 +3,14 @@ package rest
 import (
 	"net/http"
 	"net/http/pprof"
-	"log"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	swagger "github.com/Silverhammertech/swagger-lib"
 	oauth2 "github.com/Silverhammertech/oauth-lib"
+	"github.com/Silverhammertech/sms-svc/config"
+	"github.com/Silverhammertech/sms-svc/log"
 )
-
-const default_port = "8080"
-const base_path = "/api/v1/"
 
 func attachProfiler(router *mux.Router) {
 	router.HandleFunc("/debug/pprof/", pprof.Index)
@@ -36,19 +34,19 @@ func getRouter() (router *mux.Router) {
 	attachProfiler(router)
 
 	// attach swagger documentation api
-	err := swagger.AttachSwaggerUI(router, base_path)
+	err := swagger.AttachSwaggerUI(router, config.BASE_PATH)
 	if err != nil {
-		log.Panic(err.Error())
+		golog.Panic(err.Error())
 	}
 
 	//  standard endpoints
-	api := router.PathPrefix(base_path).Subrouter()
+	api := router.PathPrefix(config.BASE_PATH).Subrouter()
 
 	//  these should not require authentication to get results
 	api.Path("/ping").Methods("GET").HandlerFunc(HandlePing)
 
 	// Custom REST handlers
-	oauth2.SetOauthState(false) // TODO: set oauth state
+	oauth2.SetOauthState(!config.DEBUG)
 	for _, route := range routes {
 		api.Path(route.Pattern).Methods(route.Method).Handler(oauth2.AuthHandler(route.HandlerFunc))
 	}
@@ -58,17 +56,19 @@ func getRouter() (router *mux.Router) {
 
 func StartServer() {
 
-	// TODO: get dynamic port from server
-	port := default_port
+	port := config.DEFAULT_PORT
 
 	// get router object
 	router := getRouter()
+
+	golog.Info("REST Server Interface started.")
+	golog.Info("Port = ", port)
 
 	// Start listening on the configured port.
 	// ListenAndServe is not expected to return, so we wrap it in a log.Fatal
 	// also include CORS handling
 	err:= http.ListenAndServe(":"+port, handlers.CORS()(router))
 	if(err != nil){
-		log.Panic(err.Error())
+		golog.Panic(err.Error())
 	}
 }
